@@ -59,7 +59,7 @@ function main() {
         }
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+        drawModel();
         /*
         gl.colorMask(true, true, true, true);
         gl.stencilFunc(gl.ALWAYS, 1, 0xFF); // (OP, refv, mask)
@@ -73,8 +73,6 @@ function main() {
         gl.colorMask(true, true, true, true);
         quad.draw();
 */
-        drawModel();
-
         if (rotateFlag) {
             angle++;
             if (angle > 360) angle -= 360;
@@ -96,7 +94,24 @@ function main() {
                 gl.uniformMatrix4fv(program.uniformLocations["projT"], false, projMatrix.elements);
                 var viewMatrix = camera.getRotatedViewMatrix(angle);
                 gl.uniformMatrix4fv(program.uniformLocations["viewT"], false, viewMatrix.elements);
+
                 model.draw();
+
+                var N = [0,1,0];
+                var Q = model.getBounds().min; //a point on plane
+                var NdotQ = dot(N,Q);
+                //console.log('N:' + N + ' Q:' + Q + ' NdotQ:' + NdotQ);
+
+                var reflectionMatrix = new Matrix4();
+                reflectionMatrix.elements = new Float32Array([
+                    1-2*N[0]*N[0],-2*N[1]*N[0],-2*N[2]*N[0],0,
+                    -2*N[0]*N[1],1-2*N[1]*N[1],-2*N[2]*N[1],0,
+                    -2*N[0]*N[2],-2*N[1]*N[2],1-2*N[2]*N[2],0,
+                    2*NdotQ*N[0],2*NdotQ*N[1],2*NdotQ*N[2],1
+                ]);
+
+                model.draw(reflectionMatrix);
+
             }
             gl.useProgram(null);
         }
@@ -184,5 +199,13 @@ function main() {
             imgs[i].src = cubemappath + texturefiles[i];
         }
     }
+}
+
+function dot(N,Q) {
+    var res = 0;
+    for(var i = 0; i < 3; i++) {
+        res = res + N[i] * Q[i];
+    }
+    return res;
 }
 
