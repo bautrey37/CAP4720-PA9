@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head charset="UTF-8">
+    <title>Assignment 8</title>
+    <link rel="stylesheet" href="style.css"/>
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix.js"></script>
+    <script src="Autrey,Brandon,PA9.js"></script>
+    <script src="camera.js"></script>
+    <script src="jsonRenderable.js"></script>
+    <script src="shaderLightingTexturing.js"></script>
+    <script src="quad.js"></script>
+    <script src="texture.js"></script>
+</head>
+<body onload="main();">
+<canvas id="myCanvas1" ></canvas>
+<div id="toolbar">
+    <h1>Assignment 9</h1>
+    <h3>By: Brandon Autrey</h3>
+    <br><strong>Model List: </strong><select id="modelList" onchange="newModelFlag=true;">
+        <option selected="selected" value="teapot">Teapot</option>
+        <option value="skull">Skull</option>
+        <option value="House">House</option>
+    </select>
+    <br><strong>Cube Map List: </strong><select id="mapList" onchange="newCubeMapFlag=true" >
+        <option value="skybox">Sky</option>
+        <option value="NiagaraFalls2">Niagara Falls</option>
+        <option value="NissiBeach2">Nissi Beach</option>
+        <option value="PereaBeach2">PereaBeach2</option>
+        <option selected="selected" value="Tallinn">Tallinn</option>
+    </select>
+    <br><strong>Dolly: </strong><input type='button' value='+' onclick="dollyRequired=1;"/>
+    <input type='button' value='-' onclick="dollyRequired=-1;"/>
+    <br><strong>Rotate: </strong><input type='button' value='Toggle' onclick="toggleRotateFlag();"/>
+    <br><strong>Stencil: </strong><input type='button' value='Toggle' onclick="toggleStencilFlag();"/>
+</div>
+</body>
+</html>
