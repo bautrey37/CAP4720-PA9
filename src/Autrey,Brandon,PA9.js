@@ -42,7 +42,8 @@ function main() {
 
     var quad = new Quad(gl);
     var texObj = newCubeMap(); //initialize cube map
-    console.log(texObj);
+    var reflectionMatrix = new Matrix4();
+    newModel();
 
     draw();
     return 1;
@@ -60,17 +61,24 @@ function main() {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         drawModel();
-        /*
-        gl.colorMask(true, true, true, true);
+/*
+        //create stencil
+        gl.colorMask(false, false, false, false);
+        gl.depthMask(false);
         gl.stencilFunc(gl.ALWAYS, 1, 0xFF); // (OP, refv, mask)
         gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE); // (stencilFail, depthFail, depthPass)
         drawModel();
 
-        var int;
-        if(stencilFlag) int = 0; else int = 1;
-        gl.stencilFunc(gl.EQUAL, int, 0xFF); // (OP, refv, mask)
-        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP); // (stencilFail, depthFail, depthPass)
+        //draw inside stencil
         gl.colorMask(true, true, true, true);
+        gl.depthMask(true);
+        gl.stencilFunc(gl.EQUAL, 1, 0xFF); // (OP, refv, mask)
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP); // (stencilFail, depthFail, depthPass)
+        drawModel();
+
+        //draw outside stencil
+        gl.stencilFunc(gl.EQUAL, 0, 0xFF); // (OP, refv, mask)
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP); // (stencilFail, depthFail, depthPass)
         quad.draw();
 */
         if (rotateFlag) {
@@ -88,28 +96,14 @@ function main() {
                 gl.bindTexture(gl.TEXTURE_CUBE_MAP, texObj);
                 gl.uniform1i(samplerLoc,1);
                 var newEye = camera.getRotatedCameraPosition(angle);
-                gl.uniform3f(eyeLoc,newEye[0],newEye[1],newEye[2]);
 
                 var projMatrix = camera.getProjMatrix();
                 gl.uniformMatrix4fv(program.uniformLocations["projT"], false, projMatrix.elements);
                 var viewMatrix = camera.getRotatedViewMatrix(angle);
                 gl.uniformMatrix4fv(program.uniformLocations["viewT"], false, viewMatrix.elements);
-
+                gl.uniform3f(eyeLoc,newEye[0],newEye[1],newEye[2]);
                 model.draw();
-
-                var N = [0,1,0];
-                var Q = model.getBounds().min; //a point on plane
-                var NdotQ = dot(N,Q);
-                //console.log('N:' + N + ' Q:' + Q + ' NdotQ:' + NdotQ);
-
-                var reflectionMatrix = new Matrix4();
-                reflectionMatrix.elements = new Float32Array([
-                    1-2*N[0]*N[0],-2*N[1]*N[0],-2*N[2]*N[0],0,
-                    -2*N[0]*N[1],1-2*N[1]*N[1],-2*N[2]*N[1],0,
-                    -2*N[0]*N[2],-2*N[1]*N[2],1-2*N[2]*N[2],0,
-                    2*NdotQ*N[0],2*NdotQ*N[1],2*NdotQ*N[2],1
-                ]);
-
+                gl.uniform3f(eyeLoc,-newEye[0],-newEye[1],-newEye[2]);
                 model.draw(reflectionMatrix);
 
             }
@@ -131,6 +125,16 @@ function main() {
         else newModelFlag = false;
         var bounds = model.getBounds();
         camera = new Camera(gl, bounds, [0, 1, 0]);
+        var N = [0,1,0];
+        var Q = model.getBounds().min; //a point on plane
+        var NdotQ = dot(N,Q);
+
+        reflectionMatrix.elements = new Float32Array([
+            1-2*N[0]*N[0],-2*N[1]*N[0],-2*N[2]*N[0],0,
+            -2*N[0]*N[1],1-2*N[1]*N[1],-2*N[2]*N[1],0,
+            -2*N[0]*N[2],-2*N[1]*N[2],1-2*N[2]*N[2],0,
+            2*NdotQ*N[0],2*NdotQ*N[1],2*NdotQ*N[2],1
+        ]);
     }
 
     function newCubeMap() {
@@ -139,7 +143,7 @@ function main() {
         var tex = gl.createTexture();
         tex.complete = false;
         loadACubeFaces(tex, '../cubeMap/' + path + '/',
-            ['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']);
+            ['negx.jpg', 'posx.jpg', 'negy.jpg', 'posy.jpg', 'negz.jpg', 'posz.jpg']);
 
         newCubeMapFlag = false;
         return tex;
@@ -191,7 +195,8 @@ function main() {
                     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                    for (var dir = 0; dir < 6; dir++)gl.texImage2D(directions[dir], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[dir]);
+                    for (var dir = 0; dir < 6; dir++)
+                        gl.texImage2D(directions[dir], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[dir]);
                     gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
                     gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
                 }

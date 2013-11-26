@@ -7,7 +7,7 @@ function Camera(gl, d, modelUp) // Compute a camera from model's bounding box di
     var name = "auto";
     var at = [center[0], center[1], center[2]];
 
-    var eye = [at[0], at[1], at[2] + diagonal * 1.5];
+    var eye = [at[0], at[1] + diagonal * 0.5, at[2] + diagonal * 1.5];
     var up = [modelUp[0], modelUp[1], modelUp[2]];
     var near = diagonal * 0.1;
     var far = diagonal * 3;

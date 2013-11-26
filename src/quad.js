@@ -40,6 +40,65 @@ function Quad(gl) {
     gl.useProgram(program);
 
 
+    /*function Drawable(attribLocations, vArrays, nElements, nVertices, indexArray, drawMode) {
+        // Create a buffer object
+        var vertexBuffers = [];
+        var nAttributes = attribLocations.length;
+        for (var i = 0; i < nAttributes; i++) {
+            if (vArrays[i] && (vArrays[i].length == nElements[i] * nVertices)) {
+                vertexBuffers[i] = gl.createBuffer();
+                if (!vertexBuffers[i]) {
+                    console.log('Failed to create the buffer object');
+                    return null;
+                }
+                // Bind the buffer object to an ARRAY_BUFFER target
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[i]);
+                // Write date into the buffer object
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vArrays[i]), gl.STATIC_DRAW);
+            }
+            else {
+                console.log('No data');
+                vertexBuffers[i] = null;
+            }
+        }
+        //console.log(nElements);
+        var indexBuffer = null;
+        if (indexArray) {
+            indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexArray), gl.STATIC_DRAW);
+        }
+        this.delete = function () {
+            if (indexBuffer) gl.deleteBuffer(indexBuffer);
+            for (var i = 0; i < nAttributes; i++)
+                if (vertexBuffers[i])gl.deleteBuffer(vertexBuffers[i]);
+        };
+        this.draw = function () {
+            for (var i = 0; i < nAttributes; i++) {
+                if (vertexBuffers[i]) {
+                    gl.enableVertexAttribArray(attribLocations[i]);
+                    // Bind the buffer object to target
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[i]);
+                    // Assign the buffer object to a_Position variable
+                    gl.vertexAttribPointer(attribLocations[i], nElements[i], gl.FLOAT, false, 0, 0);
+                }
+                else {
+                    gl.disableVertexAttribArray(attribLocations[i]);
+                    if (nElements[i] == 3) gl.vertexAttrib3f(attribLocations[i], 0, 0, 1);
+                    else if (nElements[i] == 2) gl.vertexAttrib2f(attribLocations[i], 0, 0);
+                    else alert("attribute element size different from 2 and 3");
+                }
+            }
+            if (indexBuffer) {
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+                gl.drawElements(drawMode, indexArray.length, gl.UNSIGNED_SHORT, 0);
+            }
+            else {
+                gl.drawArrays(drawMode, 0, nVertices);
+            }
+        }
+    }*/
+
     function Drawable(attributes, nVertices) {
         // Create a buffer object
         var attribBuffers = [];

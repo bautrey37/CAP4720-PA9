@@ -9,7 +9,7 @@ function parseJSON(jsonFile) {
 }
 function JsonRenderable(gl, program, modelPath, modelfilename) {
     var model = parseJSON(modelPath + modelfilename);
-    var diffuseTexObjs = loadDiffuseTextures();
+    //var diffuseTexObjs = loadDiffuseTextures();
     var meshDrawables = loadMeshes(gl.TRIANGLES);
     var nodeTransformations = computeNodeTrasformations();
     this.draw = function (mMatrix) {
@@ -35,13 +35,14 @@ function JsonRenderable(gl, program, modelPath, modelfilename) {
 
                 var r = model.materials[materialIndex].diffuseReflectance;
                 gl.uniform3f(program.uniformLocations["diffuseCoeff"], r[0], r[1], r[2]);
-                if (diffuseTexObjs[materialIndex] && diffuseTexObjs[materialIndex].complete) {
+                /*if (diffuseTexObjs[materialIndex] && diffuseTexObjs[materialIndex].complete) {
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, diffuseTexObjs[materialIndex]);
                     gl.uniform1i(program.uniformLocations["diffuseTex"], 0);
                     gl.uniform1i(program.uniformLocations["texturingEnabled"], 1);
                 }
                 else gl.uniform1i(program.uniformLocations["texturingEnabled"], 0);
+                */
                 meshDrawables[meshIndex].draw();
             }
         }
@@ -101,85 +102,6 @@ function JsonRenderable(gl, program, modelPath, modelfilename) {
         }
         return drawables;
     }
-
-
-    function loadDiffuseTextures() {
-        function setTexture(gl, textureFileName) {
-            var tex = gl.createTexture();
-            tex.width = 0;
-            tex.height = 0;
-            var img = new Image();
-            //console.log("From Loader: "+textureFileName);
-            //imagecount++;
-            img.onload =  //function() { imagecount--; console.log(textureFileName+" loaded");createImageBuffer(img, tex, gl.TEXTURE_2D); };
-
-                function () {
-                    function isPowerOfTwo(x) {
-                        return (x & (x - 1)) == 0;
-                    }
-
-                    function nextHighestPowerOfTwo(x) {
-                        --x;
-                        for (var i = 1; i < 32; i <<= 1) {
-                            x = x | x >> i;
-                        }
-                        return x + 1;
-                    }
-
-                    var nPOT = false; // nPOT: notPowerOfTwo
-                    //console.log(textureFileName+" loaded : "+img.width+"x"+img.height);
-                    tex.complete = img.complete;
-                    //gl.activeTexture(gl.TEXTURE0);
-                    gl.bindTexture(gl.TEXTURE_2D, tex);
-                    //if (!isPowerOfTwo(img.width) || !isPowerOfTwo(img.height)) nPOT = true;
-
-                    if (!isPowerOfTwo(img.width) || !isPowerOfTwo(img.height)) {
-                        // Scale up the texture to the next highest power of two dimensions.
-                        var canvas = document.createElement("canvas");
-                        canvas.width = nextHighestPowerOfTwo(img.width);
-                        canvas.height = nextHighestPowerOfTwo(img.height);
-                        var ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        img = canvas;
-                        //console.log(" Scale to POT : "+img.width+"x"+img.height);
-                    }
-
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-                    //void texImage2D(enum target, int level, enum internalformat, enum format, enum type, Object object);
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, (nPOT) ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, (nPOT) ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, ((nPOT) ? gl.LINEAR : gl.LINEAR_MIPMAP_LINEAR));
-                    if (!nPOT)gl.generateMipmap(gl.TEXTURE_2D);
-                    gl.bindTexture(gl.TEXTURE_2D, null);
-                    tex.width = img.width;
-                    tex.height = img.height;
-                    //imagecount--; //console.log("From Loader: "+imagecount);
-                };
-
-            img.src = textureFileName;
-            return tex;
-        }
-
-        var imageDictionary = {};
-        var texObjs = [];
-        for (var i = 0; i < model.materials.length; i++) {
-            if (model.materials[i].diffuseTexture) {
-                var filename = model.materials[i].diffuseTexture[0];//.replace(".tga",".jpg");
-                if (filename) {
-                    //console.log(filename);
-                    if (imageDictionary[filename] === undefined) {
-                        imageDictionary[filename] = setTexture(gl, modelPath + filename);
-                    }
-                    texObjs[i] = imageDictionary[filename];
-                }
-                else texObjs[i] = undefined;
-            }
-        }
-        return texObjs;
-    }
-
 
     function Drawable(attribLocations, vArrays, nElements, nVertices, indexArray, drawMode) {
         // Create a buffer object
@@ -243,7 +165,7 @@ function JsonRenderable(gl, program, modelPath, modelfilename) {
     this.delete = function () {
         var i;
         for (i = 0; i < meshDrawables.length; i++) meshDrawables[i].delete();
-        for (i = 0; i < diffuseTexObjs.length; i++) if (diffuseTexObjs[i])gl.deleteTexture(diffuseTexObjs[i]);
+        //for (i = 0; i < diffuseTexObjs.length; i++) if (diffuseTexObjs[i])gl.deleteTexture(diffuseTexObjs[i]);
     };
     function modelMatrixToNormalMatrix(mat) {
         var a00 = mat.elements[0], a01 = mat.elements[1], a02 = mat.elements[2],
