@@ -60,8 +60,8 @@ function main() {
         }
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        drawModel();
-/*
+        //drawModel();
+
         //create stencil
         gl.colorMask(false, false, false, false);
         gl.depthMask(false);
@@ -80,7 +80,7 @@ function main() {
         gl.stencilFunc(gl.EQUAL, 0, 0xFF); // (OP, refv, mask)
         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP); // (stencilFail, depthFail, depthPass)
         quad.draw();
-*/
+
         if (rotateFlag) {
             angle++;
             if (angle > 360) angle -= 360;
